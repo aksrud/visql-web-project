@@ -5,8 +5,11 @@ let pendingDelete = null; // {sql, table, rowids}
 let pendingDrop = null; // {sql, table}
 let highlightType = 'normal';
 
+/** SQLite 데이터베이스 초기화 */
 async function initDB() {
-    const SQL = await initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.8.0/${file}` });
+    // SQLite WebAssembly initialization (SQL 실행 엔진 로드)
+    const SQL = await initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/${file}`});
+    // Load from LocalStorage (저장된 DB 불러오기)
     const savedDb = localStorage.getItem('sqliteDb');
     if (savedDb) {
         db = new SQL.Database(new Uint8Array(JSON.parse(savedDb)));
@@ -15,10 +18,12 @@ async function initDB() {
     }
 }
 
+/** 현재 DB를 로컬스토리지에 저장 */
 function saveDB() {
     localStorage.setItem('sqliteDb', JSON.stringify(Array.from(db.export())));
 }
 
+/** SQL 실행 및 결과 반환 */
 function executeSQL(sql) {
     const trimmed = sql.trim().toUpperCase();
     let result = '';
@@ -27,31 +32,60 @@ function executeSQL(sql) {
     highlightType = 'normal';
     try {
         if (trimmed.startsWith('SELECT')) {
-            // Modify SELECT to include rowid for highlighting
+            // rowid 포함하여 SELECT 실행
             const modifiedSql = sql.replace(/\bSELECT\s+/i, 'SELECT rowid, ');
             const res = db.exec(modifiedSql);
             if (res.length > 0) {
-                // Extract rowids for highlighting
+                // rowid만 따로 저장
                 const rowids = res[0].values.map(row => row[0]);
-                // But result should show original data, so remove rowid from values
+                // 원래 값만 추출
                 const originalValues = res[0].values.map(row => row.slice(1));
                 result = JSON.stringify(originalValues, null, 2);
                 affected = originalValues.length;
-                // Assume single table SELECT for simplicity
+                // 단일 테이블만 가능하게 가정
                 const tableMatch = sql.match(/FROM\s+(\w+)/i);
                 if (tableMatch) {
                     lastAffectedRows[tableMatch[1]] = rowids;
                 }
             }
         } else if (trimmed.startsWith('INSERT')) {
-            db.run(sql);
-            affected = db.getRowsModified();
-            result = `Executed successfully, affected rows: ${affected}`;
-            // Get last inserted rowid
-            const res = db.exec("SELECT last_insert_rowid()");
+            // INSERT ... RETURNING rowid 를 우선 시도 (모든 삽입된 rowid를 직접 얻기 위함)
             const tableMatch = sql.match(/INSERT\s+INTO\s+(\w+)/i);
-            if (tableMatch && res.length > 0) {
-                lastAffectedRows[tableMatch[1]] = [res[0].values[0][0]];
+            let handledByReturning = false;
+            try {
+                // 세미콜론 제거 후 RETURNING rowid 추가 시도
+                const modifiedSql = sql.replace(/;\s*$/, '') + ' RETURNING rowid;';
+                const res = db.exec(modifiedSql);
+                if (res.length > 0) {
+                    const rowids = res[0].values.map(r => parseInt(r[0], 10));
+                    affected = rowids.length;
+                    result = `Executed successfully, affected rows: ${affected}`;
+                    if (tableMatch) lastAffectedRows[tableMatch[1]] = rowids;
+                    handledByReturning = true;
+                }
+            } catch (e) {
+                // RETURNING 미지원 등으로 실패하면 폴백 처리
+                handledByReturning = false;
+            }
+            if (!handledByReturning) {
+                // 폴백: 기존 방식 (db.run + last_insert_rowid()로 범위 계산)
+                db.run(sql);
+                affected = db.getRowsModified(); // 영향받은 행 수
+                result = `Executed successfully, affected rows: ${affected}`;
+                const res2 = db.exec("SELECT last_insert_rowid()");
+                if (tableMatch && res2.length > 0) {
+                    const lastRowId = parseInt(res2[0].values[0][0], 10);
+                    if (affected > 1) {
+                        const start = lastRowId - affected + 1;
+                        const rowids = [];
+                        for (let i = 0; i < affected; i++) rowids.push(start + i);
+                        lastAffectedRows[tableMatch[1]] = rowids;
+                    } else if (affected === 1) {
+                        lastAffectedRows[tableMatch[1]] = [lastRowId];
+                    } else {
+                        lastAffectedRows[tableMatch[1]] = [];
+                    }
+                }
             }
         } else if (trimmed.startsWith('UPDATE')) {
             // First, find affected rowids
@@ -120,14 +154,17 @@ function executeSQL(sql) {
     return { result, affected };
 }
 
+/** 다이어그램 렌더링 */
 function renderDiagram() {
     const content = document.getElementById('diagram-content');
     content.innerHTML = '';
     const tablesRes = db.exec("SELECT name FROM sqlite_master WHERE type='table' AND name NOT LIKE 'sqlite_%'");
     if (tablesRes.length === 0) return;
+    // 테이블 이름을 빼와서 저장
     const tableNames = tablesRes[0].values.map(row => row[0]);
     let index = 0;
     tableNames.forEach(name => {
+        // 테이블 다이어그램 생성
         const div = document.createElement('div');
         div.className = 'table-diagram';
         if (lastAffectedRows[name] === 'all') {
@@ -139,7 +176,8 @@ function renderDiagram() {
         const tableEl = document.createElement('table');
         const thead = document.createElement('thead');
         const headerRow = document.createElement('tr');
-        // Get columns
+        
+        // 컬럼 이름과 타입 가져오기
         const pragmaRes = db.exec(`PRAGMA table_info(${name})`);
         const columns = pragmaRes[0].values.map(row => ({ name: row[1], type: row[2] }));
         columns.forEach(col => {
@@ -149,6 +187,8 @@ function renderDiagram() {
         });
         thead.appendChild(headerRow);
         tableEl.appendChild(thead);
+
+        // 테이블 행 다이어그램 그리기
         const tbody = document.createElement('tbody');
         const dataRes = db.exec(`SELECT rowid, * FROM ${name}`);
         if (dataRes.length > 0) {
@@ -201,6 +241,7 @@ document.getElementById('chapter-select').addEventListener('change', (e) => {
     }
 });
 
+/** 삭제 확인 및 실행 */
 function confirmDelete() {
     if (pendingDelete) {
         db.run(pendingDelete.sql);
@@ -216,6 +257,7 @@ function confirmDelete() {
     }
 }
 
+/** 삭제 취소 */
 function cancelDelete() {
     if (pendingDelete) {
         document.getElementById('logs-content').textContent = 'Delete cancelled';
@@ -229,6 +271,7 @@ function cancelDelete() {
     }
 }
 
+/** DROP 확인 및 실행 */
 function confirmDrop() {
     if (pendingDrop) {
         db.run(pendingDrop.sql);
@@ -244,6 +287,7 @@ function confirmDrop() {
     }
 }
 
+/** DROP 취소 */
 function cancelDrop() {
     if (pendingDrop) {
         document.getElementById('logs-content').textContent = 'Drop cancelled';
@@ -256,22 +300,26 @@ function cancelDrop() {
         }, 0);
     }
 }
+
 let isDragging = false;
 let currentElement = null;
 let offsetX, offsetY;
 
+/** 테이블 다이어그램 드래그 시작 */
 function startDrag(e) {
     isDragging = true;
-    currentElement = e.target.closest('.table-diagram');
+    currentElement = e.target.closest('.table-diagram'); // 드래그 중인 요소 부모(뭉탱이) 선택
     offsetX = e.clientX - currentElement.offsetLeft;
     offsetY = e.clientY - currentElement.offsetTop;
     currentElement.style.zIndex = 1000;
 }
 
+/** 테이블 다이어그램 드래그 중 */
 function drag(e) {
     if (!isDragging) return;
-    const container = document.getElementById('diagram-content');
-    const containerRect = container.getBoundingClientRect();
+    const container = document.getElementById('diagram-content'); // 컨테이너 경계 가져오기
+    const containerRect = container.getBoundingClientRect(); // 컨테이너의 경계 정보를 가져옴
+    // 새로운 위치 계산
     let newLeft = e.clientX - offsetX;
     let newTop = e.clientY - offsetY;
     const elementWidth = currentElement.offsetWidth;
@@ -284,6 +332,7 @@ function drag(e) {
     currentElement.style.top = newTop + 'px';
 }
 
+/** 테이블 다이어그램 드래그 종료 */
 function stopDrag() {
     if (!isDragging) return;
     isDragging = false;
