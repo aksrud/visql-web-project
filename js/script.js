@@ -104,10 +104,6 @@ function executeSQL(sql) {
                 affected = db.getRowsModified();
                 result = `Executed successfully, affected rows: ${affected}`;
                 lastAffectedRows[table] = rowids;
-            } else {
-                db.run(sql);
-                affected = db.getRowsModified();
-                result = `Executed successfully, affected rows: ${affected}`;
             }
         } else if (trimmed.startsWith('DELETE')) {
             // First, find affected rowids
@@ -217,7 +213,6 @@ function renderDiagram() {
 // Event listeners
 document.getElementById('execute-btn').addEventListener('click', () => {
     const sql = document.getElementById('sql-textarea').value;
-    document.getElementById('sql-preview-content').textContent = sql;
     const { result, affected } = executeSQL(sql);
     let logText = `Affected rows: ${affected}\n${result}`;
     // Add buttons for DELETE or DROP confirmation
@@ -228,7 +223,7 @@ document.getElementById('execute-btn').addEventListener('click', () => {
     } else if (pendingDrop) {
         confirmationDiv.innerHTML = '<button onclick="confirmDrop()">DROP 확인</button> <button onclick="cancelDrop()">취소</button>';
     }
-    document.getElementById('logs-content').innerHTML = logText;
+    document.getElementById('logs-content').innerHTML = logText.replace(/\n/g, '<br>');
     renderDiagram();
 });
 
