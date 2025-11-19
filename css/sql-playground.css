@@ -1,0 +1,115 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+    color: #333;
+}
+
+header {
+    background-color: #1F6FEB;
+    color: white;
+    text-align: center;
+    padding: 1rem;
+}
+
+main {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 1rem;
+}
+
+section {
+    margin-bottom: 2rem;
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+h1, h2, h3 {
+    margin-top: 0;
+}
+
+select, textarea, button {
+    display: block;
+    width: 100%;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+button {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+pre {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    border-radius: 4px;
+    overflow-x: auto;
+}
+
+.table-diagram {
+    margin-bottom: 2rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+}
+
+th, td {
+    border: 1px solid #ddd;
+    padding: 0.5rem;
+    text-align: left;
+}
+
+
+
+#diagram-content {
+    position: relative;
+    height: 600px;
+    border: 1px solid #ccc;
+    background-color: #fafafa;
+}
+
+.table-diagram {
+    position: absolute;
+    cursor: move;
+    border: 1px solid #ddd;
+    background-color: white;
+    padding: 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+tr.highlight {
+    background-color: #ffff99;
+    border: 2px solid #ffcc00;
+}
+
+tr.highlight.delete {
+    background-color: #ffcccc;
+    border: 2px solid #ff6666;
+}
+
+tr.highlight.drop {
+    background-color: #ffcccc;
+    border: 2px solid #ff6666;
+}
+
+.table-diagram.highlight.drop {
+    border: 3px solid #ff6666;
+    background-color: #ffeeee;
+}

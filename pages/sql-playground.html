@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VisQL</title>
+    <link rel="stylesheet" href="../css/sql-playground.css">
+</head>
+<body>
+    <header>
+        <h1>VisQL - 데이터베이스 학습 도구</h1>
+        <p>브라우저에서 DDL과 DML을 체험하세요</p>
+    </header>
+
+    <main>
+        <section id="chapter-selection">
+            <h2>챕터 선택</h2>
+            <select id="chapter-select">
+                <option value="ddl">DDL 기초 (CREATE TABLE, DROP TABLE)</option>
+                <option value="dml">DML 기초 (INSERT, SELECT, UPDATE, DELETE)</option>
+            </select>
+            <div id="chapter-description">
+                <p>선택한 챕터의 설명이 여기에 표시됩니다.</p>
+            </div>
+        </section>
+
+        <section id="sql-input">
+            <h2>SQL 입력</h2>
+            <textarea id="sql-textarea" placeholder="SQL 명령을 입력하세요 (예: CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT);)"></textarea>
+            <button id="execute-btn">실행</button>
+            <div id="confirmation-buttons"></div>
+        </section>
+
+        <section id="results">
+            <h2>결과</h2>
+            <div id="logs">
+                <h3>로그</h3>
+                <div id="logs-content"></div>
+            </div>
+            <div id="diagram">
+                <h3>다이어그램</h3>
+                <div id="diagram-content"></div>
+            </div>
+            
+        </section>
+    </main>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js"></script>
+    <script src="js/sql-playground/script.js"></script>
+</body>
+</html>
