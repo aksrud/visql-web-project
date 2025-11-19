@@ -219,21 +219,12 @@ document.getElementById('execute-btn').addEventListener('click', () => {
     const confirmationDiv = document.getElementById('confirmation-buttons');
     confirmationDiv.innerHTML = '';
     if (pendingDelete) {
-        confirmationDiv.innerHTML = '<button onclick="confirmDelete()">삭제 확인</button> <button onclick="cancelDelete()">취소</button>';
+        confirmationDiv.innerHTML = '<button onclick="confirmDelete()">DELETE 확인</button> <button onclick="cancelDelete()">취소</button>';
     } else if (pendingDrop) {
         confirmationDiv.innerHTML = '<button onclick="confirmDrop()">DROP 확인</button> <button onclick="cancelDrop()">취소</button>';
     }
     document.getElementById('logs-content').innerHTML = logText.replace(/\n/g, '<br>');
     renderDiagram();
-});
-
-document.getElementById('chapter-select').addEventListener('change', (e) => {
-    const desc = document.getElementById('chapter-description');
-    if (e.target.value === 'ddl') {
-        desc.innerHTML = '<p>DDL 기초: CREATE TABLE로 테이블을 만들고, DROP TABLE로 삭제하세요.</p>';
-    } else {
-        desc.innerHTML = '<p>DML 기초: INSERT로 데이터를 추가, SELECT로 조회, UPDATE로 수정, DELETE로 삭제하세요.</p>';
-    }
 });
 
 /** 삭제 확인 및 실행 */

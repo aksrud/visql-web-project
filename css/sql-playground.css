@@ -2,7 +2,7 @@ body {
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
-    background-color: #f4f4f4;
+    background-color: #FFFFFF;
     color: #333;
 }
 
@@ -11,6 +11,7 @@ header {
     color: white;
     text-align: center;
     padding: 1rem;
+    position: relative; /* allow absolute positioning for the back button */
 }
 
 main {
@@ -41,15 +42,32 @@ select, textarea, button {
 }
 
 button {
-    background-color: #4CAF50;
+    background-color: #1F6FEB;
     color: white;
     border: none;
     cursor: pointer;
     font-size: 1rem;
 }
 
-button:hover {
-    background-color: #45a049;
+/* Back button: default (inline, gray text) so it looks like simple text when placed in main */
+.back-button {
+    display: inline;
+    width: auto;
+    padding: 0;
+    margin-bottom: 1rem;
+    background: transparent;
+    color: #666; /* gray text */
+    border: none;
+    border-radius: 0;
+    box-shadow: none;
+    font-size: 0.95rem;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.back-button:hover {
+    color: #444;
+    text-decoration: underline;
 }
 
 pre {
