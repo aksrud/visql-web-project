@@ -53,6 +53,19 @@
 
    위 내용은 프로젝트 루트의 `TODO.md`에 상세 체크리스트로도 추가되어 있습니다.
 
+   9. 챕터 카드 클릭 시 SQL 예시 및 기본 입력 로드 설계
+
+       - 개요: 챕터를 카드 그리드로 표시한 UI에서 사용자가 카드를 클릭하면 플레이그라운드(`pages/sql-playground.html`)의 SQL 입력 칸에 해당 챕터의 기본 SQL 스니펫과 설명을 자동으로 채우고(선택적으로 자동 실행), 추가 예제나 설명을 사이드 패널에 보여주는 흐름을 설계함.
+
+       - 추천 구조 요약:
+          - 데이터: 프로젝트 내에 챕터별 메타데이터 객체(`CHAPTERS`)를 두어 {id, title, description, defaultSql, examples: []} 형태로 관리
+          - 초기화: `ui.js`에서 `initChapterCards()`를 실행해 각 카드(`.chapter-card[data-chapter]`)에 클릭 핸들러를 등록
+          - 로드: `loadChapter(chapterId)` 함수는 CHAPTERS에서 메타를 꺼내 SQL 입력창(`#sql-textarea`)과 설명 영역을 채우고, 필요시 `executeSQL()`을 호출하거나 예제 리스트를 렌더링
+          - URL 연동: `pages/sql-playground.html?chapter=insert` 같은 쿼리 파라미터를 지원해 직접 접근 시에도 해당 챕터가 로드되도록 함
+
+       - 장점: 중앙화된 챕터 메타데이터로 유지보수 쉬움, URL 기반 접근성 제공, 자동 실행 옵션으로 데모/학습 시나리오 다양화 가능
+
+
 ## 변경된 주요 파일
 - `js/script.js` — SQL 실행 로직(INSERT/UPDATE/DELETE/DROP 등) 및 다이어그램 하이라이트
 - `pages/selectChapter.html` — 챕터 카드 레이아웃(ARIA 제거 요청 반영)
