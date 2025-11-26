@@ -43,7 +43,6 @@ select, textarea {
 }
 
 button {
-    width: 80px;
     height: 40px;
     border-radius: 10px;
     font-size: 1rem;
@@ -56,6 +55,7 @@ button {
     background-color: #1F6FEB;
     color: white;
     margin-right: 1rem;
+    margin-bottom: 1rem;
 }
 
 #reset-btn {
@@ -128,7 +128,7 @@ th, td {
 
 tr.highlight {
     background-color: #ffff99;
-    border: 2px solid #ffcc00;
+    border: 2px solid #ECF40D;
 }
 
 tr.highlight.delete {
