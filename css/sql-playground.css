@@ -32,21 +32,35 @@ h1, h2, h3 {
     margin-top: 0;
 }
 
-select, textarea, button {
+select, textarea {
     display: block;
     width: 100%;
     margin-bottom: 1rem;
     padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
+    box-sizing: border-box;
 }
 
 button {
+    width: 80px;
+    height: 40px;
+    border-radius: 10px;
+    font-size: 1rem;
+    cursor: pointer;
+    border: 1px solid #000000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.25);
+}
+
+#execute-btn {
     background-color: #1F6FEB;
     color: white;
-    border: none;
-    cursor: pointer;
-    font-size: 1rem;
+    margin-right: 1rem;
+}
+
+#reset-btn {
+    background-color: #ffffff;
+    color: #000000;
 }
 
 /* Back button: default (inline, gray text) so it looks like simple text when placed in main */

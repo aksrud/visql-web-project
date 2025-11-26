@@ -12,10 +12,16 @@
     </header>
     <main>
         <button id="back-btn" class="back-button">← 챕터 페이지로 돌아가기</button>
+        <h2 id="chapter-id"></h2>
+        <section id="base-sql-input">
+            <h2>기본 SQL 입력</h2>
+            <textarea id="base-sql-textarea" placeholder="이 부분은 변경하여도 적용이 되지 않는 텍스트 입니다." readonly></textarea>
+        </section>
         <section id="sql-input">
             <h2>SQL 입력</h2>
             <textarea id="sql-textarea" placeholder="SQL 명령을 입력하세요 (예: CREATE TABLE users (id INTEGER PRIMARY KEY, name TEXT);)"></textarea>
-            <button id="execute-btn">실행</button>
+            <button id="execute-btn">실행 ▶</button>
+            <button id="reset-btn">초기화</button>
             <div id="confirmation-buttons"></div>
         </section>
 
@@ -23,7 +29,7 @@
             <h2>결과</h2>
             <div id="logs">
                 <h3>로그</h3>
-                <div id="logs-content"></div>
+                <div id="logs-content">로그 없음</div>
             </div>
             <div id="diagram">
                 <h3>다이어그램</h3>
@@ -36,5 +42,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/sql-wasm.js"></script>
     <script src="../js/sql-playground/script.js"></script>
     <script src="../js/sql-playground/ui.js"></script>
+    <script type="module" src="../js/sql-playground/chapters.js"></script>
 </body>
 </html>

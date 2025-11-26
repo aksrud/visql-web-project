@@ -11,7 +11,9 @@ async function initDB() {
     const SQL = await initSqlJs({ locateFile: file => `https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.13.0/${file}`});
     // Load from LocalStorage (저장된 DB 불러오기)
     const savedDb = localStorage.getItem('sqliteDb');
-    if (savedDb) {
+    // 쿼리스트링 가져오기
+    const chapterId = new URLSearchParams(window.location.search).get('id');
+    if (savedDb && !chapterId) {
         db = new SQL.Database(new Uint8Array(JSON.parse(savedDb)));
     } else {
         db = new SQL.Database();
@@ -40,7 +42,7 @@ function executeSQL(sql) {
                 const rowids = res[0].values.map(row => row[0]);
                 // 원래 값만 추출
                 const originalValues = res[0].values.map(row => row.slice(1));
-                result = JSON.stringify(originalValues, null, 2);
+                // result = JSON.stringify(originalValues, null, 2); 길어서 주석 처리
                 affected = originalValues.length;
                 // 단일 테이블만 가능하게 가정
                 const tableMatch = sql.match(/FROM\s+(\w+)/i);
@@ -210,6 +212,17 @@ function renderDiagram() {
     });
 }
 
+// base SQL 실행 및 다이어그램 렌더링
+function loadBaseSQL() {
+    const baseSQL = document.getElementById('base-sql-textarea').value;
+    if (baseSQL.trim() === 'none') {
+        console.log('No base SQL to load.');
+        return;
+    }
+    executeSQL(baseSQL);
+    renderDiagram();
+}
+
 // Event listeners
 document.getElementById('execute-btn').addEventListener('click', () => {
     const sql = document.getElementById('sql-textarea').value;
@@ -331,5 +344,6 @@ document.addEventListener('mouseup', stopDrag);
 
 // Initialize
 initDB().then(() => {
+    loadBaseSQL();
     renderDiagram();
 });
