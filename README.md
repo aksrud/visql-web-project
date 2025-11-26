@@ -13,7 +13,8 @@
 HTML5
 CSS
 JavaScript
-sqlite(JavaScript)
+sqlite(JavaScript, WebAssembly)
 
 # 실행 방법
 내가 배우고 싶은 챕터를 고른다음 그 챕터에서 나오는 설명에 따라 sql을 작성하고 실행한 내용을 렌더링된 다이어그램을 통해 확인하고 결과창을 통해 얻어진 데이터를 확인한다.
+
