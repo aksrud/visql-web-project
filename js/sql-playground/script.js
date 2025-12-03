@@ -13,7 +13,7 @@ async function initDB() {
     const savedDb = localStorage.getItem('sqliteDb');
     // 쿼리스트링 가져오기
     const chapterId = new URLSearchParams(window.location.search).get('id');
-    if (savedDb && !chapterId) {
+    if (savedDb && !chapterId) { // 챕터로 안들어갔을때 db저장된걸 꺼냄 
         db = new SQL.Database(new Uint8Array(JSON.parse(savedDb)));
     } else {
         db = new SQL.Database();
@@ -220,10 +220,15 @@ function loadBaseSQL() {
         return;
     }
     executeSQL(baseSQL);
+}
+
+async function resetDB() {
+    await initDB();
+    loadBaseSQL();
     renderDiagram();
 }
 
-// Event listeners
+// 실행 버튼
 document.getElementById('execute-btn').addEventListener('click', () => {
     const sql = document.getElementById('sql-textarea').value;
     const { result, affected } = executeSQL(sql);
@@ -238,6 +243,11 @@ document.getElementById('execute-btn').addEventListener('click', () => {
     }
     document.getElementById('logs-content').innerHTML = logText.replace(/\n/g, '<br>');
     renderDiagram();
+});
+
+// 초기화 버튼
+document.getElementById("reset-btn").addEventListener(('click'), ()=>{
+    resetDB();
 });
 
 /** 삭제 확인 및 실행 */
@@ -342,7 +352,7 @@ function stopDrag() {
 document.addEventListener('mousemove', drag);
 document.addEventListener('mouseup', stopDrag);
 
-// Initialize
+// js로딩시 시작되는 db초기화 작업
 initDB().then(() => {
     loadBaseSQL();
     renderDiagram();
